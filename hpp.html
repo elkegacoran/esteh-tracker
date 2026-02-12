@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Es Teh Rakyat v2.8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f1f5f9; font-family: sans-serif; }
+        .input-card { @apply bg-white p-3 rounded-xl shadow-sm border border-gray-200; }
+        label { @apply text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1 block; }
+        input { @apply w-full text-base font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-green-500 rounded px-1; }
+        .target-input { @apply bg-white text-slate-900 border-2 border-slate-300 rounded-lg p-2 text-center text-sm font-black focus:border-blue-500; }
+    </style>
+</head>
+<body class="p-4 pb-20">
+    <div class="max-w-md mx-auto">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-black text-slate-900 tracking-tighter italic">ESTEH <span class="text-green-600">RAKYAT</span></h1>
+            <button onclick="resetDefault()" class="text-[10px] bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold uppercase">Reset Data</button>
+        </header>
+
+        <section class="grid grid-cols-2 gap-3 mb-6">
+            <div class="input-card col-span-2 border-b-4 border-slate-400">
+                <label>Takaran Teh (gram/Liter)</label>
+                <input type="number" id="t-teh" value="13" oninput="hitung()">
+            </div>
+            <div class="input-card"><label>Teh Biasa (160g)</label><input type="number" id="h-teh-reg" value="25000" oninput="hitung()"></div>
+            <div class="input-card border-l-4 border-green-500"><label>Teh Hijau (200g)</label><input type="number" id="h-teh-hijau" value="60000" oninput="hitung()"></div>
+            <div class="input-card"><label>Gula (1kg)</label><input type="number" id="h-gula" value="20000" oninput="hitung()"></div>
+            <div class="input-card"><label>Sirup Marjan (460ml)</label><input type="number" id="h-marjan" value="22000" oninput="hitung()"></div>
+        </section>
+
+        <h2 class="text-xs font-black text-slate-500 mb-3 uppercase tracking-widest px-1">💰 Atur Harga Jual (Manual)</h2>
+        <section class="grid grid-cols-3 gap-2 mb-8 text-center bg-slate-800 p-3 rounded-xl shadow-lg">
+            <div><label class="text-white opacity-60">Ori</label><input type="number" id="j-ori" value="5000" oninput="hitung()" class="target-input w-full"></div>
+            <div><label class="text-white opacity-60">Rasa</label><input type="number" id="j-rasa" value="7000" oninput="hitung()" class="target-input w-full"></div>
+            <div><label class="text-white opacity-60">Hijau</label><input type="number" id="j-hijau" value="8000" oninput="hitung()" class="target-input w-full"></div>
+        </section>
+
+        <div id="results" class="space-y-4"></div>
+    </div>
+
+    <script>
+        function resetDefault() {
+            if(confirm("Kembalikan ke harga normal?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function hitung() {
+            const air = 4000/19000;
+            const es = (6000/2500)*150;
+            const pack = (15000/50)+(4000/40)+(5000/20);
+            const commonCost = es + pack;
+
+            const inputs = {
+                t: +document.getElementById('t-teh').value,
+                hTReg: +document.getElementById('h-teh-reg').value,
+                hTHijau: +document.getElementById('h-teh-hijau').value,
+                hGula: +document.getElementById('h-gula').value,
+                hMarjan: +document.getElementById('h-marjan').value,
+                jOri: +document.getElementById('j-ori').value,
+                jRasa: +document.getElementById('j-rasa').value,
+                jHijau: +document.getElementById('j-hijau').value
+            };
+
+            const gulaFull = (inputs.hGula + (air * 1000)) / 1500 * 30;
+            const biangReg = ((inputs.t * (inputs.hTReg/160)) + (1000 * air)) / 5;
+            const biangHijau = ((inputs.t * (inputs.hTHijau/200)) + (1000 * air)) / 5;
+            const costMarjan = (inputs.hMarjan / 460) * 20;
+
+            const menus = [
+                {
+                    name: "1. Teh Original",
+                    hpp: biangReg + gulaFull + commonCost,
+                    jual: inputs.jOri,
+                    color: "slate",
+                    details: [
+                        {l: "Biang Teh (200ml)", v: biangReg}, 
+                        {l: "Gula Cair (30ml)", v: gulaFull}, 
+                        {l: "Es & Pack", v: commonCost}
+                    ]
+                },
+                {
+                    name: "2. Teh Rasa (Marjan)",
+                    hpp: biangReg + (gulaFull/2) + costMarjan + commonCost,
+                    jual: inputs.jRasa,
+                    color: "orange",
+                    details: [
+                        {l: "Biang Teh (200ml)", v: biangReg}, 
+                        {l: "Marjan (20ml) + Gula (15ml)", v: (gulaFull/2)+costMarjan}, 
+                        {l: "Es & Pack", v: commonCost}
+                    ]
+                },
+                {
+                    name: "3. Teh Hijau Pure",
+                    hpp: biangHijau + gulaFull + commonCost,
+                    jual: inputs.jHijau,
+                    color: "green",
+                    details: [
+                        {l: "Biang Hijau (200ml)", v: biangHijau}, 
+                        {l: "Gula Cair (30ml)", v: gulaFull}, 
+                        {l: "Es & Pack", v: commonCost}
+                    ]
+                }
+            ];
+
+            render(menus);
+            localStorage.setItem('esteh_v2_8', JSON.stringify(inputs));
+        }
+
+        function render(menus) {
+            const container = document.getElementById('results');
+            container.innerHTML = menus.map(m => {
+                const hpp = Math.ceil(m.hpp);
+                const profit = m.jual - hpp;
+                const margin = (profit / m.jual * 100).toFixed(1);
+                const colorClass = m.color === 'orange' ? 'text-orange-600' : (m.color === 'green' ? 'text-green-600' : 'text-slate-600');
+                
+                return `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[10px] font-black uppercase ${colorClass} bg-gray-50 px-2 py-1 rounded">${m.name}</span>
+                            <span class="text-[10px] font-bold text-green-600">Margin ${margin}%</span>
+                        </div>
+                        <div class="flex justify-between items-end mb-4 border-b border-dashed pb-4">
+                            <div><label class="mb-0 text-slate-400">HPP</label><h3 class="text-3xl font-black text-slate-800 tracking-tighter">Rp${hpp.toLocaleString('id-ID')}</h3></div>
+                            <div class="text-right">
+                                <label class="mb-0 text-green-600 font-bold">Profit/Gelas</label>
+                                <h3 class="text-xl font-black ${profit < 0 ? 'text-red-600' : 'text-green-600'}">${profit < 0 ? '' : '+' }Rp${profit.toLocaleString('id-ID')}</h3>
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            ${m.details.map(d => `<div class="flex justify-between text-[11px] text-slate-500 font-medium"><span>${d.l}</span><span class="font-bold">Rp${Math.ceil(d.v).toLocaleString('id-ID')}</span></div>`).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.onload = () => {
+            const saved = JSON.parse(localStorage.getItem('esteh_v2_8'));
+            if(saved) {
+                Object.keys(saved).forEach(key => {
+                    const el = document.getElementById(key.includes('j') ? key : key.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase());
+                    if(el) el.value = saved[key];
+                });
+            }
+            hitung();
+        };
+    </script>
+</body>
+</html>

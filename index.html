@@ -24,7 +24,7 @@
 
     /* === 1. HEADER & TABS === */
     .header {
-      background: white;
+      background: rgb(246, 246, 246);
       padding: 15px 15px 5px 15px;
       position: sticky;
       top: 0;
@@ -195,12 +195,13 @@
 <body>
 
 <div class="header">
-  <h2>Es Teh Rakyat 🥤</h2>
+  <h2>Es Teh Rakyat </h2>
   <div class="tabs">
     <button class="tab-btn active" onclick="filterCategory('all')">Semua</button>
     <button class="tab-btn" onclick="filterCategory('original')">Original</button>
     <button class="tab-btn" onclick="filterCategory('susu')">Susu</button>
     <button class="tab-btn" onclick="filterCategory('buah')">Buah</button>
+    <button class="tab-btn" onclick="filterCategory('kopi')">Kopi</button>
   </div>
 </div>
 
@@ -225,37 +226,35 @@
 // Saya tambahkan properti 'category' untuk filter tabs
 const products = [
   // Original
-  { id: 'ori',     name: "Es Teh Ori Kecil",       price:3000, cat:'original' },
-  { id: 'orib',    name: "Es Teh Ori Besar",       price:5000, cat:'original' },
-  { id: 'hijau',   name: "Es Teh Hijau",           price:3000, cat:'original' },
-  { id: 'hijaub',  name: "Es Teh Hijau Besar",     price:5000, cat:'original' },
+  { id: 'ori',     name: "Ori Kecil",       price:3000, cat:'original' },
+  { id: 'orib',    name: "Ori Besar",       price:5000, cat:'original' },
+  { id: 'hijau',   name: "Hijau Kecil",     price:3000, cat:'original' },
+  { id: 'hijaub',  name: "Hijau Besar",     price:5000, cat:'original' },
   
   // Susu Series
-  { id: 'susu',    name: "Es Teh Ori Susu Kcl",    price:5000, cat:'susu' },
-  { id: 'susub',   name: "Es Teh Ori Susu Bsr",    price:8000, cat:'susu' },
-  { id: 'susuh',   name: "Teh Hijau Susu Kcl",     price:5000, cat:'susu' },
-  { id: 'susuhb',  name: "Teh Hijau Susu Bsr",     price:8000, cat:'susu' },
+  { id: 'susu',    name: "Ori Susu Kecil",    price:5000, cat:'susu' },
+  { id: 'susub',   name: "Ori Susu Besar",    price:8000, cat:'susu' },
+  { id: 'susuh',   name: "Hijau Susu Kecil",     price:5000, cat:'susu' },
+  { id: 'susuhb',  name: "Hijau Susu Besar",     price:8000, cat:'susu' },
   
   // Buah & Flavor (Leci, Lemon, Strawberry, Blueberry)
-  { id: 'lemon',   name: "Es Teh Lemon Kcl",       price:5000, cat:'buah' },
-  { id: 'lemonb',  name: "Es Teh Lemon Bsr",       price:8000, cat:'buah' },
-  { id: 'lemonm',  name: "Lemon Milk Kcl",         price:7000, cat:'buah' },
-  { id: 'lemonmb', name: "Lemon Milk Bsr",         price:10000, cat:'buah' },
+  { id: 'lemon',   name: "syrop Kecil",       price:5000, cat:'buah' },
+  { id: 'lemonb',  name: "syrop Besar",       price:8000, cat:'buah' },
+  { id: 'lemonm',  name: "syrop susu Kecil",  price:7000, cat:'buah' },
+  { id: 'lemonmb', name: "syrop susu Besar",  price:10000, cat:'buah' },
   
-  { id: 'leci',    name: "Es Teh Leci Kcl",        price:5000, cat:'buah' },
-  { id: 'lecib',   name: "Es Teh Leci Bsr",        price:8000, cat:'buah' },
-  { id: 'lecinm',  name: "Leci Milk Kcl",          price:7000, cat:'buah' },
-  { id: 'lecinmb', name: "Leci Milk Bsr",          price:10000, cat:'buah' },
-  
-  { id: 'strbry',  name: "Strawberry Tea Kcl",     price:5000, cat:'buah' },
-  { id: 'strbryb', name: "Strawberry Tea Bsr",     price:8000, cat:'buah' },
-  { id: 'strbrym', name: "Strawberry Milk Kcl",    price:7000, cat:'buah' },
-  { id: 'strbrymb',name: "Strawberry Milk Bsr",    price:10000, cat:'buah' },
 
-  { id: 'blbry',   name: "Blueberry Tea Kcl",      price:5000, cat:'buah' },
-  { id: 'blbryb',  name: "Blueberry Tea Bsr",      price:8000, cat:'buah' },
-  { id: 'blbrym',  name: "Blueberry Milk Kcl",     price:7000, cat:'buah' },
-  { id: 'blbrymb', name: "Blueberry Milk Bsr",     price:10000, cat:'buah' },
+  //kopi  
+  { id: 'capup', name: "Cappucino panas",     price:5000, cat:'kopi' },
+  { id: 'capud', name: "Cappucino dingin",    price:6000, cat:'kopi' },
+  { id: 'capep', name: "Coffemix panas",      price:5000, cat:'kopi' },
+  { id: 'caped', name: "Coffemix dingin",     price:6000, cat:'kopi' },
+  { id: 'nesp',  name:  "Nesscafe panas",     price:4000, cat:'kopi' },
+  { id: 'nesd',  name:  "Nesscafe dingin",    price:5000, cat:'kopi' },
+  { id: 'ttrp', name: "tehtarik panas",       price:5000, cat:'kopi' },
+  { id: 'ttrd', name: "tehtarik dingin",      price:6000, cat:'kopi' },
+
+
 ];
 
 const rupiah = new Intl.NumberFormat("id-ID", {

@@ -19,10 +19,9 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
       margin: 0; 
       background-color: #f0f2f5;
-      padding-bottom: 140px; /* Ruang untuk sticky footer */
+      padding-bottom: 140px; 
     }
 
-    /* === 1. HEADER & TABS === */
     .header {
       background: rgb(246, 246, 246);
       padding: 15px 15px 5px 15px;
@@ -39,9 +38,9 @@
       gap: 10px;
       overflow-x: auto;
       padding-bottom: 10px;
-      scrollbar-width: none; /* Hide scrollbar Firefox */
+      scrollbar-width: none; 
     }
-    .tabs::-webkit-scrollbar { display: none; /* Hide scrollbar Chrome */ }
+    .tabs::-webkit-scrollbar { display: none; }
 
     .tab-btn {
       background: #eee;
@@ -60,15 +59,13 @@
       font-weight: bold;
     }
 
-    /* === 2. GRID LAYOUT (MENU) === */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(2, 1fr); /* 2 Kolom di HP */
+      grid-template-columns: repeat(2, 1fr); 
       gap: 12px;
       padding: 15px;
     }
 
-    /* Kalau layar lebar (Laptop/Tablet), jadi 4 kolom */
     @media (min-width: 600px) {
       .grid-container { grid-template-columns: repeat(4, 1fr); }
     }
@@ -96,7 +93,7 @@
       color: var(--dark);
       margin-bottom: 5px;
       line-height: 1.3;
-      min-height: 36px; /* Biar tinggi kartu rata */
+      min-height: 36px; 
     }
 
     .card-price {
@@ -105,7 +102,6 @@
       margin-bottom: 12px;
     }
 
-    /* === 3. CONTROLS (+/-) === */
     .controls {
       display: flex;
       align-items: center;
@@ -141,7 +137,6 @@
 
     .qty-display.active { color: var(--primary); }
 
-    /* === 4. STICKY BOTTOM SHEET === */
     .bottom-sheet {
       position: fixed;
       bottom: 0;
@@ -158,12 +153,16 @@
     .total-info {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end; /* Ubah ke flex-end biar rata bawah */
       margin-bottom: 12px;
     }
 
     .total-label { font-size: 14px; color: #666; }
-    .total-value { font-size: 20px; font-weight: 800; color: var(--dark); }
+    .total-value { font-size: 20px; font-weight: 800; color: var(--dark); text-align: right; }
+    
+    /* Tambahan styling buat Laba */
+    .laba-value { font-size: 12px; font-weight: 600; color: var(--primary); text-align: right; margin-top: 4px; }
+    .hpp-value { font-size: 11px; color: #888; text-align: right; }
 
     .btn-simpan {
       width: 100%;
@@ -178,17 +177,6 @@
     }
     
     .btn-simpan:disabled { background-color: #ccc; }
-    
-    /* Indikator ada item di keranjang */
-    .badge-count {
-      background: red;
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-      vertical-align: top;
-      display: none;
-    }
 
   </style>
 </head>
@@ -205,8 +193,7 @@
   </div>
 </div>
 
-<div id="menu-grid" class="grid-container">
-  </div>
+<div id="menu-grid" class="grid-container"></div>
 
 <div class="bottom-sheet">
   <div class="total-info">
@@ -214,7 +201,11 @@
       <div class="total-label">Total Penjualan</div>
       <div id="item-count" style="font-size: 12px; color: #888;">0 item</div>
     </div>
-    <div class="total-value" id="grand-total">Rp 0</div>
+    <div>
+      <div class="total-value" id="grand-total">Rp 0</div>
+      <div class="laba-value" id="laba-total">Laba: Rp 0</div>
+      <div class="hpp-value" id="hpp-total">HPP Pack: Rp 0</div>
+    </div>
   </div>
   <button class="btn-simpan" id="btn-simpan" onclick="simpanKeSheet()">
     SIMPAN DATA
@@ -222,29 +213,19 @@
 </div>
 
 <script>
-// ================= DATA CONFIG =================
-// Saya tambahkan properti 'category' untuk filter tabs
 const products = [
-  // Original
   { id: 'ori',     name: "Ori Kecil",       price:3000, cat:'original' },
   { id: 'orib',    name: "Ori Besar",       price:5000, cat:'original' },
   { id: 'hijau',   name: "Hijau Kecil",     price:3000, cat:'original' },
   { id: 'hijaub',  name: "Hijau Besar",     price:5000, cat:'original' },
-  
-  // Susu Series
   { id: 'susu',    name: "Ori Susu Kecil",    price:5000, cat:'susu' },
   { id: 'susub',   name: "Ori Susu Besar",    price:8000, cat:'susu' },
   { id: 'susuh',   name: "Hijau Susu Kecil",     price:5000, cat:'susu' },
   { id: 'susuhb',  name: "Hijau Susu Besar",     price:8000, cat:'susu' },
-  
-  // Buah & Flavor (Leci, Lemon, Strawberry, Blueberry)
   { id: 'lemon',   name: "syrop Kecil",       price:5000, cat:'buah' },
   { id: 'lemonb',  name: "syrop Besar",       price:8000, cat:'buah' },
   { id: 'lemonm',  name: "syrop susu Kecil",  price:7000, cat:'buah' },
   { id: 'lemonmb', name: "syrop susu Besar",  price:10000, cat:'buah' },
-  
-
-  //kopi  
   { id: 'capup', name: "Cappucino panas",     price:5000, cat:'kopi' },
   { id: 'capud', name: "Cappucino dingin",    price:6000, cat:'kopi' },
   { id: 'capep', name: "Coffemix panas",      price:5000, cat:'kopi' },
@@ -252,38 +233,32 @@ const products = [
   { id: 'nesp',  name:  "Nesscafe panas",     price:4000, cat:'kopi' },
   { id: 'nesd',  name:  "Nesscafe dingin",    price:5000, cat:'kopi' },
   { id: 'ttrp', name: "tehtarik panas",       price:5000, cat:'kopi' },
-  { id: 'ttrd', name: "tehtarik dingin",      price:6000, cat:'kopi' },
-
-
+  { id: 'ttrd', name: "tehtarik dingin",      price:6000, cat:'kopi' }
 ];
 
 const rupiah = new Intl.NumberFormat("id-ID", {
   style: "currency", currency: "IDR", maximumFractionDigits: 0
 });
 
-// State
+// Harga HPP Packaging per cup (Gelas 180 + Plastik 100 + Tutup 100 + Sealer 0.4)
+const hppPackagingPerCup = 380.4; 
+
 let cart = {};
 products.forEach(p => cart[p.id] = 0);
 let activeCategory = 'all';
 
-// ================= RENDER LOGIC =================
 const menuContainer = document.getElementById("menu-grid");
 const tabButtons = document.querySelectorAll('.tab-btn');
 
 function filterCategory(cat) {
   activeCategory = cat;
-  
-  // Update tombol aktif
   tabButtons.forEach(btn => btn.classList.remove('active'));
   event.target.classList.add('active');
-  
   renderMenu();
 }
 
 function renderMenu() {
   menuContainer.innerHTML = "";
-  
-  // Filter produk berdasarkan kategori
   const filteredProducts = products.filter(p => {
     if (activeCategory === 'all') return true;
     return p.cat === activeCategory;
@@ -291,7 +266,6 @@ function renderMenu() {
 
   filteredProducts.forEach(item => {
     const qty = cart[item.id];
-    // Card class: kalau ada qty, kasih highlight class 'selected'
     const cardClass = qty > 0 ? "card selected" : "card";
     const qtyClass = qty > 0 ? "qty-display active" : "qty-display";
 
@@ -310,14 +284,12 @@ function renderMenu() {
     `;
     menuContainer.appendChild(card);
   });
-  
   updateFooter();
 }
 
 function updateQty(id, change) {
   if (cart[id] + change >= 0) {
     cart[id] += change;
-    // Kita render ulang semua biar visual update (bisa dioptimasi nanti)
     renderMenu(); 
   }
 }
@@ -332,27 +304,32 @@ function updateFooter() {
     totalQty += q;
   });
 
+  // Kalkulasi HPP dan Laba
+  const totalHpp = totalQty * hppPackagingPerCup;
+  const estimasiLaba = total - totalHpp;
+
   document.getElementById("grand-total").innerText = rupiah.format(total);
   document.getElementById("item-count").innerText = totalQty + " Item di keranjang";
   
-  // Visual feedback tombol simpan
+  // Tampilkan ke UI
+  document.getElementById("laba-total").innerText = "Laba: " + rupiah.format(estimasiLaba);
+  document.getElementById("hpp-total").innerText = "HPP Pack: " + rupiah.format(totalHpp);
+  
   const btn = document.getElementById("btn-simpan");
   if(totalQty > 0) {
-    btn.style.backgroundColor = "#28a745"; // Hijau
+    btn.style.backgroundColor = "#28a745"; 
     btn.innerText = `SIMPAN (${rupiah.format(total)})`;
   } else {
-    btn.style.backgroundColor = "#6c757d"; // Abu-abu
+    btn.style.backgroundColor = "#6c757d"; 
     btn.innerText = "SIMPAN";
   }
 }
 
-// ================= SAVE TO SHEET =================
 const API_URL = "https://script.google.com/macros/s/AKfycbwgs70hSlbquLwkWRsFAsAUluf5GiCYxoWiAIXf2qAQCib5J4RHgU_J1S_5S5KNhKk6/exec";
 
 async function simpanKeSheet() {
   const btn = document.getElementById("btn-simpan");
   
-  // Filter item yg > 0
   const transaksi = products
     .filter(p => cart[p.id] > 0)
     .map(p => ({
@@ -360,7 +337,8 @@ async function simpanKeSheet() {
       produk: p.name,
       qty: cart[p.id],
       harga: p.price,
-      total: cart[p.id] * p.price
+      total: cart[p.id] * p.price,
+      hpp_pack: cart[p.id] * hppPackagingPerCup // Kirim juga data HPP ke sheet kalau lu mau
     }));
 
   if (transaksi.length === 0) {
@@ -368,7 +346,6 @@ async function simpanKeSheet() {
     return;
   }
 
-  // Loading
   const oldText = btn.innerText;
   btn.innerText = "Lagi upload...";
   btn.disabled = true;
@@ -380,7 +357,6 @@ async function simpanKeSheet() {
     });
 
     alert("Mantap! Data masuk.");
-    // Reset All
     products.forEach(p => cart[p.id] = 0);
     renderMenu();
 
@@ -390,11 +366,10 @@ async function simpanKeSheet() {
   } finally {
     btn.innerText = "SIMPAN";
     btn.disabled = false;
-    updateFooter(); // Reset warna tombol
+    updateFooter(); 
   }
 }
 
-// Start
 renderMenu();
 </script>
 
